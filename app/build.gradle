@@ -6,6 +6,11 @@ plugins {
 android {
     compileSdk 32
 
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude("mozilla/public-suffix-list.txt")
+    }
+
     defaultConfig {
         applicationId "com.example.a520"
         minSdk 26
@@ -43,4 +48,5 @@ dependencies {
 
     implementation 'com.google.code.gson:gson:2.8.9'
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+    implementation("it.skrape:skrapeit:1.2.1")
 }
