@@ -1,6 +1,7 @@
 package com.example.a520
 
 import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -15,6 +16,7 @@ import kotlin.collections.emptyList as emptyList1
 class ListActivity : AppCompatActivity() {
 
     lateinit var toMain: Button
+    lateinit var toCompanies: Button
     lateinit var getIndividuals: Button
     lateinit var namesList: TextView
 
@@ -28,6 +30,11 @@ class ListActivity : AppCompatActivity() {
         toMain = findViewById(R.id.main)
         toMain.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
+        }
+        toCompanies = findViewById(R.id.to_companies)
+        toCompanies.setOnClickListener {
+            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://rozetked.me/cancellations/"))
+            startActivity(browserIntent)
         }
 
         namesList = findViewById(R.id.names_list)
