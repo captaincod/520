@@ -1,6 +1,8 @@
 package com.example.a520
 
+import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -42,39 +44,44 @@ class ListActivity : AppCompatActivity() {
         getIndividuals = findViewById(R.id.get_individuals)
 
         getIndividuals.setOnClickListener {
-            val physicalParagraphs = skrape(HttpFetcher) {
-                request {
-                    if (physical != null) {
-                        url = physical
+            if (!isConnected()){
+                ConnectionDialog().show(supportFragmentManager, "EmptyDialog")
+            } else {
+                val physicalParagraphs = skrape(HttpFetcher) {
+                    request {
+                        if (physical != null) {
+                            url = physical
+                        }
+                    }
+                    extractIt<ScrapeData> {
+                        htmlDocument {
+                            it.paragraphs = p { findAll { eachText } }
+                        }
                     }
                 }
-                extractIt<ScrapeData> {
-                    htmlDocument {
-                        it.paragraphs = p { findAll { eachText } }
+                val paras = physicalParagraphs.paragraphs
+                val agents: MutableList<IndividualAgent> = mutableListOf()
+                for (i in paras) {
+                    if (i.length in 1..2) {
+                        val agent = IndividualAgent(
+                            paras[paras.indexOf(i)+1],
+                            paras[paras.indexOf(i)+2],
+                            paras[paras.indexOf(i)+3],
+                            paras[paras.indexOf(i)+4]
+                        )
+                        agents.add(agent)
                     }
                 }
-            }
-            val paras = physicalParagraphs.paragraphs
-            val agents: MutableList<IndividualAgent> = mutableListOf()
-            for (i in paras) {
-                if (i.length in 1..2) {
-                    val agent = IndividualAgent(
-                        paras[paras.indexOf(i)+1],
-                        paras[paras.indexOf(i)+2],
-                        paras[paras.indexOf(i)+3],
-                        paras[paras.indexOf(i)+4]
-                    )
-                    agents.add(agent)
-                }
-            }
 
-            var text = ""
-            for (agent in agents){
-                text += "\n${agent.name}\n${agent.inclusionDate}\n${agent.foreignSource}\n"
+                var text = ""
+                for (agent in agents){
+                    text += "\n${agent.name}\n${agent.inclusionDate}\n${agent.foreignSource}\n"
+                }
+                namesList.text = text
             }
-            namesList.text = text
         }
 
+        /*
         val mediaParagraphs = skrape(HttpFetcher) {
             request {
                 if (media != null) {
@@ -89,13 +96,18 @@ class ListActivity : AppCompatActivity() {
         }
 
         Log.d("mytag", mediaParagraphs.toString())
-
-
-
+         */
 
     }
 
     data class ScrapeData(var paragraphs: List<String> = emptyList1())
     data class IndividualAgent(var name: String, var inclusionDate: String,
                                var foreignSource: String, var info: String)
+
+    private fun isConnected(): Boolean {
+        val connectivityManager =
+            getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkInfo = connectivityManager.activeNetworkInfo
+        return networkInfo?.isConnected == true
+    }
 }

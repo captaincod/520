@@ -1,5 +1,6 @@
 package com.example.a520
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -9,6 +10,12 @@ import android.widget.TextView
 import com.google.gson.Gson
 import okhttp3.*
 import java.io.IOException
+import android.net.NetworkInfo
+
+import android.net.ConnectivityManager
+import android.os.Handler
+import android.widget.Toast
+
 
 class MainActivity : AppCompatActivity() {
     lateinit var textView: TextView
@@ -21,6 +28,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        if (!isConnected()){
+            ConnectionDialog().show(supportFragmentManager, "EmptyDialog")
+        }
+        getResponse("спецоперация", "ru")
+
         firstComparable = mutableMapOf(
             "title" to "No title", "url" to "https://www.vedomosti.ru/politics/news/2022/06/16/926809-pushilin-spetsoperatsii", "image" to ""
         )
@@ -32,11 +44,15 @@ class MainActivity : AppCompatActivity() {
         toComparison = findViewById(R.id.to_comparison)
 
         toComparison.setOnClickListener{
-            val intentComparison = Intent(this, ComparisonActivity::class.java).apply {
-                putExtra("first", firstComparable["url"])
-                putExtra("second", secondComparable["url"])
+            if (!isConnected()){
+                ConnectionDialog().show(supportFragmentManager, "EmptyDialog")
+            } else {
+                val intentComparison = Intent(this, ComparisonActivity::class.java).apply {
+                    putExtra("first", firstComparable["url"])
+                    putExtra("second", secondComparable["url"])
+                }
+                startActivity(intentComparison)
             }
-            startActivity(intentComparison)
         }
 
         toList = findViewById(R.id.to_list)
@@ -50,16 +66,13 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    fun getResponse(q: String, lang: String){
+    fun getResponse(q: String, country: String){
+
         val client = OkHttpClient()
         val URL =
-            "https://newscatcher.p.rapidapi.com/v1/search_free?q=$q&lang=$lang&media=True"
-
+            "https://newsdata.io/api/1/news?apikey=${getString(R.string.API)}&country=$country&q=$q"
         val request: Request = Request.Builder()
             .url(URL)
-            .addHeader("X-RapidAPI-Key", "c9c0365ba4mshb68568657356927p16a43djsn95e258a13f17")
-            .addHeader("X-RapidAPI-Host", "newscatcher.p.rapidapi.com")
-            .get()
             .build()
         client.newCall(request).enqueue(object: Callback {
             override fun onFailure(call: Call?, e: IOException?) {
@@ -69,14 +82,20 @@ class MainActivity : AppCompatActivity() {
             }
             override fun onResponse(call: Call?, response: Response?) {
                 val json = response?.body()?.string()
-                val newsData: NewsResponse = Gson().fromJson<NewsResponse>(json, NewsResponse::class.java)
-                Log.d("DEVELOP", newsData.toString())
-                Log.d("DEVELOP", newsData.articles[0].toString())
+                val newsData: NewsResponse = Gson().fromJson(json, NewsResponse::class.java)
+                Log.d(DEVELOP, newsData.toString())
                 runOnUiThread {
-                    textView.text = newsData.articles[0].title
+                    textView.text = "dd"
                 }
             }
         })
+    }
+
+    private fun isConnected(): Boolean {
+        val connectivityManager =
+            getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkInfo = connectivityManager.activeNetworkInfo
+        return networkInfo?.isConnected == true
     }
 
     companion object {
