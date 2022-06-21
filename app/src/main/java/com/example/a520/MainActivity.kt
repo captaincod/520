@@ -6,32 +6,44 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
-import android.widget.TextView
 import com.google.gson.Gson
 import okhttp3.*
 import java.io.IOException
-import android.net.NetworkInfo
 
 import android.net.ConnectivityManager
 import android.os.Handler
-import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 
 class MainActivity : AppCompatActivity() {
-    lateinit var textView: TextView
+
     lateinit var toComparison: Button
     lateinit var toList: Button
+    lateinit var rus: Button
+    lateinit var recyclerView: RecyclerView
+
     lateinit var firstComparable: MutableMap<String, String>
     lateinit var secondComparable: MutableMap<String, String>
+    var titles: MutableList<String> = mutableListOf()
+    var sources: MutableList<String>  = mutableListOf()
+    var dates: MutableList<String>  = mutableListOf()
+    var images: MutableList<String>  = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        if (!isConnected()){
-            ConnectionDialog().show(supportFragmentManager, "EmptyDialog")
+        getResponse("спецоперация%20OR%20украина", "ru")
+
+        recyclerView = findViewById(R.id.recyclerView)
+        rus = findViewById(R.id.rus)
+        rus.setOnClickListener{
+            Log.d(DEVELOP, titles.size.toString())
+            recyclerView.layoutManager = LinearLayoutManager(this)
+            recyclerView.adapter = CustomRecyclerAdapter(applicationContext, titles, sources, dates, images)
         }
-        getResponse("спецоперация", "ru")
+
 
         firstComparable = mutableMapOf(
             "title" to "No title", "url" to "https://www.vedomosti.ru/politics/news/2022/06/16/926809-pushilin-spetsoperatsii", "image" to ""
@@ -40,7 +52,6 @@ class MainActivity : AppCompatActivity() {
             "title" to "No title", "url" to "https://gazeta.ua/articles/sport/_polskij-bokser-adamek-zayaviv-scho-v-ukrayini-jde-gromadyanska-vijna/1095377", "image" to ""
         )
 
-        textView = findViewById(R.id.text)
         toComparison = findViewById(R.id.to_comparison)
 
         toComparison.setOnClickListener{
@@ -63,32 +74,38 @@ class MainActivity : AppCompatActivity() {
             }
             startActivity(intentList)
         }
-
     }
 
-    fun getResponse(q: String, country: String){
-
-        val client = OkHttpClient()
-        val URL =
-            "https://newsdata.io/api/1/news?apikey=${getString(R.string.API)}&country=$country&q=$q"
-        val request: Request = Request.Builder()
-            .url(URL)
-            .build()
-        client.newCall(request).enqueue(object: Callback {
-            override fun onFailure(call: Call?, e: IOException?) {
-                runOnUiThread {
-                    Log.w("DEVELOP", "New call on failure: $e")
+    fun getResponse(q: String, lang: String){
+        if (!isConnected()){
+            ConnectionDialog().show(supportFragmentManager, "EmptyDialog")
+        } else {
+            val client = OkHttpClient()
+            val URL =
+                "https://newsdata.io/api/1/news?apikey=${getString(R.string.API)}&language=$lang&q=$q"
+            val request: Request = Request.Builder()
+                .url(URL)
+                .build()
+            client.newCall(request).enqueue(object: Callback {
+                override fun onFailure(call: Call?, e: IOException?) {
+                    runOnUiThread {
+                        Log.w("DEVELOP", "New call on failure: $e")
+                    }
                 }
-            }
-            override fun onResponse(call: Call?, response: Response?) {
-                val json = response?.body()?.string()
-                val newsData: NewsResponse = Gson().fromJson(json, NewsResponse::class.java)
-                Log.d(DEVELOP, newsData.toString())
-                runOnUiThread {
-                    textView.text = "dd"
+                override fun onResponse(call: Call?, response: Response?) {
+                    Log.d(DEVELOP, "Get Response")
+                    val json = response?.body()?.string()
+                    val newsData = Gson().fromJson(json, NewsResponse::class.java)
+                    Log.d(DEVELOP, newsData.totalResults.toString())
+                    for (news in newsData.results){
+                        titles.add("<a href=\"${news.link}\">${news.title}</a>")
+                        sources.add(news.source_id)
+                        dates.add(news.pubDate)
+                        images.add(news.image_url.toString())
+                    }
                 }
-            }
-        })
+            })
+        }
     }
 
     private fun isConnected(): Boolean {
