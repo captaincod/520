@@ -1,8 +1,6 @@
 package com.example.a520
 
 import android.content.Context
-import android.media.Image
-import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
@@ -36,14 +34,13 @@ class CustomRecyclerAdapter(private val context: Context,
     // TODO: заменить placeholder
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        //val image_url = "https://cdni.rt.com/russian/images/2022.06/thumbnail/62ae39c402e8bd20a357a328.png"
         Picasso.with(context)
             .load(images[position])
             .placeholder(R.drawable.world_news)
             .error(R.drawable.world_news)
             .fit()
             .into(holder.imageView)
-        holder.largeTextView.text = Html.fromHtml(titles[position])
+        holder.largeTextView.text = titles[position]
         holder.largeTextView.movementMethod = LinkMovementMethod.getInstance()
         holder.sourceTextView.text = sources[position]
         holder.dateTextView.text = dates[position]

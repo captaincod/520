@@ -1,7 +1,9 @@
 package com.example.a520
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -11,12 +13,16 @@ import okhttp3.*
 import java.io.IOException
 
 import android.net.ConnectivityManager
-import android.os.Handler
+import android.net.Uri
+import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import android.widget.Toast
+import androidx.core.view.get
+import com.example.a520.RecyclerTouchListener.ClickListener
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
 
     lateinit var toComparison: Button
     lateinit var toList: Button
@@ -26,9 +32,11 @@ class MainActivity : AppCompatActivity() {
     lateinit var firstComparable: MutableMap<String, String>
     lateinit var secondComparable: MutableMap<String, String>
     var titles: MutableList<String> = mutableListOf()
+    var links: MutableList<String> = mutableListOf()
     var sources: MutableList<String>  = mutableListOf()
     var dates: MutableList<String>  = mutableListOf()
     var images: MutableList<String>  = mutableListOf()
+    var linkForDialog: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +51,28 @@ class MainActivity : AppCompatActivity() {
             recyclerView.layoutManager = LinearLayoutManager(this)
             recyclerView.adapter = CustomRecyclerAdapter(applicationContext, titles, sources, dates, images)
         }
+
+        recyclerView.addOnItemTouchListener(
+            RecyclerTouchListener(
+                applicationContext,
+                recyclerView,
+                object : ClickListener {
+                    override fun onClick(view: View?, position: Int) {
+                        if (recyclerView[position].tag == "chosen"){
+                            recyclerView[position].setBackgroundColor(Color.TRANSPARENT)
+                            recyclerView[position].tag = null
+                        } else {
+                            recyclerView[position].setBackgroundColor(Color.LTGRAY)
+                            recyclerView[position].tag = "chosen"
+                        }
+                        Toast.makeText(this@MainActivity, titles[position], Toast.LENGTH_SHORT).show()
+                    }
+                    override fun onLongClick(view: View?, position: Int) {
+                        linkForDialog = links[position]
+                        LinkDialog(linkForDialog).show(supportFragmentManager, "YesNoDialog")
+                    }
+                })
+        )
 
 
         firstComparable = mutableMapOf(
@@ -98,13 +128,21 @@ class MainActivity : AppCompatActivity() {
                     val newsData = Gson().fromJson(json, NewsResponse::class.java)
                     Log.d(DEVELOP, newsData.totalResults.toString())
                     for (news in newsData.results){
-                        titles.add("<a href=\"${news.link}\">${news.title}</a>")
+                        //titles.add("<a href=\"${news.link}\">${news.title}</a>")
+                        titles.add(news.title)
+                        links.add(news.link)
                         sources.add(news.source_id)
                         dates.add(news.pubDate)
                         images.add(news.image_url.toString())
                     }
                 }
             })
+        }
+    }
+
+    override fun onClick(dialog: DialogInterface?, which: Int) {
+        when (which){
+            DialogInterface.BUTTON_POSITIVE -> startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(linkForDialog)))
         }
     }
 
