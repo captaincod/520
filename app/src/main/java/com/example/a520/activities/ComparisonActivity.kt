@@ -1,4 +1,4 @@
-package com.example.a520
+package com.example.a520.activities
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -6,8 +6,7 @@ import android.os.Bundle
 import android.webkit.WebView
 import android.widget.Button
 import android.webkit.WebViewClient
-
-
+import com.example.a520.R
 
 
 class ComparisonActivity : AppCompatActivity() {

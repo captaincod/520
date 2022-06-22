@@ -1,4 +1,4 @@
-package com.example.a520
+package com.example.a520.dialogs
 
 import android.app.AlertDialog
 import android.app.Dialog

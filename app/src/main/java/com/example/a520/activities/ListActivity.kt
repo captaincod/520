@@ -1,4 +1,4 @@
-package com.example.a520
+package com.example.a520.activities
 
 import android.content.Context
 import android.content.Intent
@@ -6,9 +6,10 @@ import android.net.ConnectivityManager
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.TextView
+import com.example.a520.dialogs.ConnectionDialog
+import com.example.a520.R
 import it.skrape.core.htmlDocument
 import it.skrape.fetcher.*
 import it.skrape.selects.*

@@ -1,4 +1,4 @@
-package com.example.a520
+package com.example.a520.recyclerview
 
 import android.content.Context
 import android.text.method.LinkMovementMethod
@@ -8,14 +8,16 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.a520.R
 import com.squareup.picasso.Picasso
 
 class CustomRecyclerAdapter(private val context: Context,
                             private val titles: List<String>,
                             private val sources: List<String>,
                             private val dates: List<String>,
-                            private val images: List<String>) :
-    RecyclerView.Adapter<CustomRecyclerAdapter.MyViewHolder>() {
+                            private val images: List<String>
+    ):RecyclerView.Adapter<CustomRecyclerAdapter.MyViewHolder>() {
+
 
     class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val largeTextView: TextView = itemView.findViewById(R.id.textViewLarge)
@@ -44,7 +46,9 @@ class CustomRecyclerAdapter(private val context: Context,
         holder.largeTextView.movementMethod = LinkMovementMethod.getInstance()
         holder.sourceTextView.text = sources[position]
         holder.dateTextView.text = dates[position]
+
     }
 
     override fun getItemCount() = titles.size
+
 }

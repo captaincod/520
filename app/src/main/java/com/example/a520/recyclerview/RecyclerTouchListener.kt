@@ -1,8 +1,7 @@
-package com.example.a520
+package com.example.a520.recyclerview
 
 import android.content.Context
 import androidx.recyclerview.widget.RecyclerView
-import com.example.a520.RecyclerTouchListener.ClickListener
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener
 import android.view.GestureDetector
 import android.view.MotionEvent

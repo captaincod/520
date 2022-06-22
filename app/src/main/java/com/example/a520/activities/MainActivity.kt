@@ -1,4 +1,4 @@
-package com.example.a520
+package com.example.a520.activities
 
 import android.content.Context
 import android.content.DialogInterface
@@ -17,9 +17,13 @@ import android.net.Uri
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import android.widget.Toast
 import androidx.core.view.get
-import com.example.a520.RecyclerTouchListener.ClickListener
+import com.example.a520.*
+import com.example.a520.recyclerview.RecyclerTouchListener.ClickListener
+import com.example.a520.dialogs.ConnectionDialog
+import com.example.a520.dialogs.LinkDialog
+import com.example.a520.recyclerview.CustomRecyclerAdapter
+import com.example.a520.recyclerview.RecyclerTouchListener
 
 
 class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
@@ -29,8 +33,8 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
     lateinit var rus: Button
     lateinit var recyclerView: RecyclerView
 
-    lateinit var firstComparable: MutableMap<String, String>
-    lateinit var secondComparable: MutableMap<String, String>
+    var firstComparable: String = ""
+    var secondComparable: String = ""
     var titles: MutableList<String> = mutableListOf()
     var links: MutableList<String> = mutableListOf()
     var sources: MutableList<String>  = mutableListOf()
@@ -42,55 +46,17 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        getResponse("спецоперация%20OR%20украина", "ru")
-
-        recyclerView = findViewById(R.id.recyclerView)
-        rus = findViewById(R.id.rus)
-        rus.setOnClickListener{
-            Log.d(DEVELOP, titles.size.toString())
-            recyclerView.layoutManager = LinearLayoutManager(this)
-            recyclerView.adapter = CustomRecyclerAdapter(applicationContext, titles, sources, dates, images)
-        }
-
-        recyclerView.addOnItemTouchListener(
-            RecyclerTouchListener(
-                applicationContext,
-                recyclerView,
-                object : ClickListener {
-                    override fun onClick(view: View?, position: Int) {
-                        if (recyclerView[position].tag == "chosen"){
-                            recyclerView[position].setBackgroundColor(Color.TRANSPARENT)
-                            recyclerView[position].tag = null
-                        } else {
-                            recyclerView[position].setBackgroundColor(Color.LTGRAY)
-                            recyclerView[position].tag = "chosen"
-                        }
-                        Toast.makeText(this@MainActivity, titles[position], Toast.LENGTH_SHORT).show()
-                    }
-                    override fun onLongClick(view: View?, position: Int) {
-                        linkForDialog = links[position]
-                        LinkDialog(linkForDialog).show(supportFragmentManager, "YesNoDialog")
-                    }
-                })
-        )
-
-
-        firstComparable = mutableMapOf(
-            "title" to "No title", "url" to "https://www.vedomosti.ru/politics/news/2022/06/16/926809-pushilin-spetsoperatsii", "image" to ""
-        )
-        secondComparable = mutableMapOf(
-            "title" to "No title", "url" to "https://gazeta.ua/articles/sport/_polskij-bokser-adamek-zayaviv-scho-v-ukrayini-jde-gromadyanska-vijna/1095377", "image" to ""
-        )
-
         toComparison = findViewById(R.id.to_comparison)
-
+        toComparison.isClickable = false
+        toComparison.isEnabled = false
+        toComparison.setBackgroundColor(Color.LTGRAY)
         toComparison.setOnClickListener{
             if (!isConnected()){
                 ConnectionDialog().show(supportFragmentManager, "EmptyDialog")
             } else {
                 val intentComparison = Intent(this, ComparisonActivity::class.java).apply {
-                    putExtra("first", firstComparable["url"])
-                    putExtra("second", secondComparable["url"])
+                    putExtra("first", firstComparable)
+                    putExtra("second", secondComparable)
                 }
                 startActivity(intentComparison)
             }
@@ -104,9 +70,66 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
             }
             startActivity(intentList)
         }
+
+        getResponse("спецоперация%20OR%20украина", "ru")
+
+        recyclerView = findViewById(R.id.recyclerView)
+        rus = findViewById(R.id.rus)
+        rus.setOnClickListener{
+            recyclerView.layoutManager = LinearLayoutManager(this)
+            recyclerView.adapter = CustomRecyclerAdapter(applicationContext, titles, sources, dates, images)
+        }
+
+        recyclerView.addOnItemTouchListener(
+            RecyclerTouchListener(
+                applicationContext,
+                recyclerView,
+                object : ClickListener {
+                    override fun onClick(view: View?, position: Int) {
+                        val count: Int = recyclerView.layoutManager!!.childCount
+                        var positionView = position
+                        if (positionView >= count){
+                            positionView -= count
+                        }
+                        if (recyclerView[positionView].tag != null){
+                            recyclerView[positionView].setBackgroundColor(Color.TRANSPARENT)
+                            if (recyclerView[positionView].tag == "first"){
+                                firstComparable = ""
+                            } else if (recyclerView[positionView].tag == "second"){
+                                secondComparable = ""
+                            }
+                            recyclerView[positionView].tag = null
+                            toComparison.isClickable = false
+                            toComparison.isEnabled = false
+                            toComparison.setBackgroundColor(Color.LTGRAY)
+                        } else {
+                            if (firstComparable == ""){
+                                recyclerView[positionView].setBackgroundColor(Color.LTGRAY)
+                                firstComparable = links[position]
+                                recyclerView[positionView].tag = "first"
+                            } else if (secondComparable == ""){
+                                recyclerView[positionView].setBackgroundColor(Color.LTGRAY)
+                                secondComparable = links[position]
+                                recyclerView[positionView].tag = "second"
+                            }
+
+                            if (firstComparable != "" && secondComparable != ""){
+                                toComparison.isClickable = true
+                                toComparison.isEnabled = true
+                                toComparison.setBackgroundColor(Color.GREEN)
+                            }
+                        }
+                    }
+
+                    override fun onLongClick(view: View?, position: Int) {
+                        linkForDialog = links[position]
+                        LinkDialog(linkForDialog).show(supportFragmentManager, "YesNoDialog")
+                    }
+                })
+        )
     }
 
-    fun getResponse(q: String, lang: String){
+    private fun getResponse(q: String, lang: String){
         if (!isConnected()){
             ConnectionDialog().show(supportFragmentManager, "EmptyDialog")
         } else {
@@ -126,7 +149,7 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
                     Log.d(DEVELOP, "Get Response")
                     val json = response?.body()?.string()
                     val newsData = Gson().fromJson(json, NewsResponse::class.java)
-                    Log.d(DEVELOP, newsData.totalResults.toString())
+                    //Log.d(DEVELOP, newsData.totalResults.toString())
                     for (news in newsData.results){
                         //titles.add("<a href=\"${news.link}\">${news.title}</a>")
                         titles.add(news.title)
@@ -144,6 +167,10 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
         when (which){
             DialogInterface.BUTTON_POSITIVE -> startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(linkForDialog)))
         }
+    }
+
+    fun enableButton(){
+
     }
 
     private fun isConnected(): Boolean {
