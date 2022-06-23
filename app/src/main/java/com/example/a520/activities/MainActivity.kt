@@ -15,6 +15,8 @@ import java.io.IOException
 import android.net.ConnectivityManager
 import android.net.Uri
 import android.view.View
+import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.core.view.get
@@ -29,6 +31,7 @@ import com.example.a520.recyclerview.RecyclerTouchListener
 class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
 
     lateinit var toComparison: Button
+    lateinit var ownComparison: Button
     lateinit var toList: Button
     lateinit var rus: Button
     lateinit var recyclerView: RecyclerView
@@ -70,6 +73,9 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
             }
             startActivity(intentList)
         }
+
+        ownComparison = findViewById(R.id.own_comparison)
+        showEditTextDialog()
 
         getResponse("спецоперация%20OR%20украина", "ru")
 
@@ -129,6 +135,31 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
         )
     }
 
+    private fun showEditTextDialog() {
+        ownComparison.setOnClickListener {
+            val builder = AlertDialog.Builder(this)
+            val inflater = layoutInflater
+            val dialogLayout = inflater.inflate(R.layout.edit_text_layout, null)
+            val editText1 = dialogLayout.findViewById<EditText>(R.id.edittext_1)
+            val editText2 = dialogLayout.findViewById<EditText>(R.id.edittext_2)
+
+            with(builder) {
+                setIcon(R.drawable.world_news)
+                setTitle("Введите источники для сравнения")
+                setPositiveButton("ОК"){dialog, which ->
+                    val intentComparison = Intent(this@MainActivity, ComparisonActivity::class.java).apply {
+                        putExtra("first", editText1.text.toString())
+                        putExtra("second", editText2.text.toString())
+                    }
+                    startActivity(intentComparison)
+                }
+                setNegativeButton("Отмена", null)
+                setView(dialogLayout)
+                show()
+            }
+        }
+    }
+
     private fun getResponse(q: String, lang: String){
         if (!isConnected()){
             ConnectionDialog().show(supportFragmentManager, "EmptyDialog")
@@ -167,10 +198,6 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
         when (which){
             DialogInterface.BUTTON_POSITIVE -> startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(linkForDialog)))
         }
-    }
-
-    fun enableButton(){
-
     }
 
     private fun isConnected(): Boolean {

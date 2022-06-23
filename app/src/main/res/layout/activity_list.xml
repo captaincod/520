@@ -42,8 +42,7 @@
         app:layout_constraintRight_toLeftOf="@+id/main"
         android:text="иноагенты"
         android:textColor="@color/teal_200"
-        android:background="@android:color/transparent"
-        android:backgroundTint="@android:color/transparent"/>
+        android:background="@android:color/transparent"/>
     <Button
         android:id="@+id/main"
         android:layout_width="0dp"
@@ -52,8 +51,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@+id/to_list"
         app:layout_constraintRight_toRightOf="parent"
-        android:text="главная"
+        android:text="Новости"
         android:textColor="@color/white"
-        android:backgroundTint="@color/teal_700"/>
+        android:background="@color/teal_700"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

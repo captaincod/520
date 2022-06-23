@@ -3,10 +3,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/AndroidStudioProjects/520/app/src/main/res/drawable/bordered.xml" value="0.14479166666666668" />
         <entry key="..\:/AndroidStudioProjects/520/app/src/main/res/layout/activity_companies.xml" value="0.264" />
         <entry key="..\:/AndroidStudioProjects/520/app/src/main/res/layout/activity_comparison.xml" value="0.264" />
         <entry key="..\:/AndroidStudioProjects/520/app/src/main/res/layout/activity_list.xml" value="0.259375" />
         <entry key="..\:/AndroidStudioProjects/520/app/src/main/res/layout/activity_main.xml" value="0.2" />
+        <entry key="..\:/AndroidStudioProjects/520/app/src/main/res/layout/edit_text_layout.xml" value="0.1" />
         <entry key="..\:/AndroidStudioProjects/520/app/src/main/res/layout/recyclerview_item.xml" value="0.264" />
       </map>
     </option>
