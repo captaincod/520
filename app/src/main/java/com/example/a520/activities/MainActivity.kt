@@ -26,6 +26,10 @@ import com.example.a520.dialogs.ConnectionDialog
 import com.example.a520.dialogs.LinkDialog
 import com.example.a520.recyclerview.CustomRecyclerAdapter
 import com.example.a520.recyclerview.RecyclerTouchListener
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
@@ -33,7 +37,7 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
     lateinit var toComparison: Button
     lateinit var ownComparison: Button
     lateinit var toList: Button
-    lateinit var rus: Button
+    //lateinit var rus: Button
     lateinit var recyclerView: RecyclerView
 
     var firstComparable: String = ""
@@ -52,7 +56,6 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
         toComparison = findViewById(R.id.to_comparison)
         toComparison.isClickable = false
         toComparison.isEnabled = false
-        toComparison.setBackgroundColor(Color.LTGRAY)
         toComparison.setOnClickListener{
             if (!isConnected()){
                 ConnectionDialog().show(supportFragmentManager, "EmptyDialog")
@@ -77,28 +80,20 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
         ownComparison = findViewById(R.id.own_comparison)
         showEditTextDialog()
 
-        getResponse("спецоперация%20OR%20украина", "ru")
-
         recyclerView = findViewById(R.id.recyclerView)
-        rus = findViewById(R.id.rus)
-        rus.setOnClickListener{
-            recyclerView.layoutManager = LinearLayoutManager(this)
-            recyclerView.adapter = CustomRecyclerAdapter(applicationContext, titles, sources, dates, images)
-        }
-
         recyclerView.addOnItemTouchListener(
             RecyclerTouchListener(
                 applicationContext,
                 recyclerView,
                 object : ClickListener {
                     override fun onClick(view: View?, position: Int) {
-                        val count: Int = recyclerView.layoutManager!!.childCount
+                        val count: Int = recyclerView.childCount
                         var positionView = position
                         if (positionView >= count){
                             positionView -= count
                         }
                         if (recyclerView[positionView].tag != null){
-                            recyclerView[positionView].setBackgroundColor(Color.TRANSPARENT)
+                            recyclerView[positionView].background = getDrawable(R.drawable.bordered)
                             if (recyclerView[positionView].tag == "first"){
                                 firstComparable = ""
                             } else if (recyclerView[positionView].tag == "second"){
@@ -107,14 +102,14 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
                             recyclerView[positionView].tag = null
                             toComparison.isClickable = false
                             toComparison.isEnabled = false
-                            toComparison.setBackgroundColor(Color.LTGRAY)
+                            toComparison.setBackgroundColor(resources.getColor(R.color.light_gray))
                         } else {
                             if (firstComparable == ""){
-                                recyclerView[positionView].setBackgroundColor(Color.LTGRAY)
+                                recyclerView[positionView].background = getDrawable(R.drawable.bordered_select)
                                 firstComparable = links[position]
                                 recyclerView[positionView].tag = "first"
                             } else if (secondComparable == ""){
-                                recyclerView[positionView].setBackgroundColor(Color.LTGRAY)
+                                recyclerView[positionView].background = getDrawable(R.drawable.bordered_select)
                                 secondComparable = links[position]
                                 recyclerView[positionView].tag = "second"
                             }
@@ -122,7 +117,7 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
                             if (firstComparable != "" && secondComparable != ""){
                                 toComparison.isClickable = true
                                 toComparison.isEnabled = true
-                                toComparison.setBackgroundColor(Color.GREEN)
+                                toComparison.setBackgroundColor(resources.getColor(R.color.green))
                             }
                         }
                     }
@@ -180,17 +175,27 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
                     Log.d(DEVELOP, "Get Response")
                     val json = response?.body()?.string()
                     val newsData = Gson().fromJson(json, NewsResponse::class.java)
-                    //Log.d(DEVELOP, newsData.totalResults.toString())
+                    val newtitles: MutableList<String> = mutableListOf()
+                    val newlinks: MutableList<String> = mutableListOf()
+                    val newsources: MutableList<String>  = mutableListOf()
+                    val newdates: MutableList<String>  = mutableListOf()
+                    val newimages: MutableList<String>  = mutableListOf()
                     for (news in newsData.results){
-                        //titles.add("<a href=\"${news.link}\">${news.title}</a>")
-                        titles.add(news.title)
-                        links.add(news.link)
-                        sources.add(news.source_id)
-                        dates.add(news.pubDate)
-                        images.add(news.image_url.toString())
+                        newtitles.add(news.title)
+                        newlinks.add(news.link)
+                        newsources.add(news.source_id)
+                        newdates.add(news.pubDate)
+                        newimages.add(news.image_url.toString())
+
                     }
+                    titles = newtitles
+                    links = newlinks
+                    sources = newsources
+                    dates = newdates
+                    images = newimages
                 }
             })
+            Log.d(DEVELOP, titles.toString())
         }
     }
 
@@ -210,4 +215,30 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
     companion object {
         const val DEVELOP = "develop"
     }
+
+    @DelicateCoroutinesApi
+    fun getRU(view: android.view.View) {
+        GlobalScope.launch (Dispatchers.IO) {
+            getResponse("спецоперация%20OR%20украина", "ru")
+            runOnUiThread {
+                recyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
+                recyclerView.adapter = CustomRecyclerAdapter(applicationContext, titles, sources, dates, images)
+            }
+        }
+
+    }
+
+    @DelicateCoroutinesApi
+    fun getUK(view: android.view.View) {
+        GlobalScope.launch (Dispatchers.IO) {
+            getResponse("війна%20OR%20росія", "uk")
+            runOnUiThread {
+                recyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
+                recyclerView.adapter = CustomRecyclerAdapter(applicationContext, titles, sources, dates, images)
+            }
+        }
+
+    }
+
+    fun getEN(view: android.view.View) {}
 }
