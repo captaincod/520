@@ -1,7 +1,6 @@
 package com.example.a520.recyclerview
 
 import android.content.Context
-import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,15 +11,14 @@ import com.example.a520.R
 import com.squareup.picasso.Picasso
 
 class CustomRecyclerAdapter(private val context: Context,
-                            private val titles: List<String>,
-                            private val sources: List<String>,
-                            private val dates: List<String>,
-                            private val images: List<String>
-    ):RecyclerView.Adapter<CustomRecyclerAdapter.MyViewHolder>() {
-
+                            private val dataset: MutableList<Dataset>,
+                            private val comparisonAction: (String) -> Unit
+    ) : RecyclerView.Adapter<CustomRecyclerAdapter.MyViewHolder>() {
+    //private var isEnable = false
+    private var itemSelectedList = mutableListOf<Int>()
 
     class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val largeTextView: TextView = itemView.findViewById(R.id.textViewLarge)
+        val titleTextView: TextView = itemView.findViewById(R.id.textViewLarge)
         val sourceTextView: TextView = itemView.findViewById(R.id.source)
         val dateTextView: TextView = itemView.findViewById(R.id.date)
         val imageView: ImageView = itemView.findViewById(R.id.imageView)
@@ -36,19 +34,46 @@ class CustomRecyclerAdapter(private val context: Context,
     // TODO: заменить placeholder
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+        val item = dataset[position]
         Picasso.with(context)
-            .load(images[position])
+            .load(item.image)
             .placeholder(R.drawable.world_news)
             .error(R.drawable.world_news)
             .fit()
             .into(holder.imageView)
-        holder.largeTextView.text = titles[position]
-        holder.largeTextView.movementMethod = LinkMovementMethod.getInstance()
-        holder.sourceTextView.text = sources[position]
-        holder.dateTextView.text = dates[position]
+        holder.titleTextView.text = item.title
+        holder.sourceTextView.text = item.source
+        holder.dateTextView.text = item.date
+
+        holder.titleTextView.setOnLongClickListener {
+            comparisonAction(item.link)
+            true
+        }
+
+        holder.titleTextView.setOnClickListener {
+            if (itemSelectedList.contains(position)){
+                itemSelectedList.remove(position)
+                holder.itemView.setBackgroundResource(R.drawable.bordered)
+                item.selected = false
+                if (itemSelectedList.isEmpty()){
+                    comparisonAction("off")
+                    //isEnable = false
+                }
+            } else {
+                selectItem(holder, item, position)
+            }
+        }
 
     }
 
-    override fun getItemCount() = titles.size
+    private fun selectItem(holder: CustomRecyclerAdapter.MyViewHolder, item: Dataset, position: Int) {
+        //isEnable = true
+        itemSelectedList.add(position)
+        holder.itemView.setBackgroundResource(R.drawable.bordered_select)
+        item.selected = true
+        comparisonAction("on")
+    }
+
+    override fun getItemCount() = dataset.size
 
 }

@@ -11,15 +11,15 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintHeight_percent="0.45"
+        app:layout_constraintHeight_percent="0.44"
         />
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="4dp"
+        android:layout_height="3dp"
         app:layout_constraintTop_toBottomOf="@id/first_web"
         app:layout_constraintBottom_toTopOf="@id/second_web"
-        android:background="@color/teal_200"
+        android:background="@color/dark_gray"
         />
 
     <WebView
@@ -28,23 +28,29 @@
         android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@+id/first_web"
         app:layout_constraintBottom_toTopOf="@+id/back"
-        app:layout_constraintHeight_percent="0.45"
+        app:layout_constraintHeight_percent="0.44"
         />
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="4dp"
+        android:layout_height="3dp"
         app:layout_constraintTop_toBottomOf="@id/second_web"
         app:layout_constraintBottom_toTopOf="@id/back"
-        android:background="@color/teal_200"
+        android:background="@color/dark_gray"
         />
 
     <Button
         android:id="@+id/back"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:text="Назад"/>
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="10dp"
+        android:text="Назад"
+        android:fontFamily="@font/rubik"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:background="@color/red"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

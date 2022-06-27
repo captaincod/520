@@ -19,7 +19,7 @@ import kotlin.collections.emptyList as emptyList1
 class ListActivity : AppCompatActivity() {
 
     lateinit var toMain: Button
-    lateinit var toCompanies: Button
+    //lateinit var toCompanies: Button
     lateinit var getIndividuals: Button
     lateinit var namesList: TextView
 
@@ -27,18 +27,21 @@ class ListActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list)
 
-        val physical = intent.getStringExtra("physical")
-        val media = intent.getStringExtra("media")
+        val physical = "https://minjust.gov.ru/ru/activity/directions/942/spisok-lic-vypolnyayushih-funkcii-inostrannogo-agenta/"
+        val media = "https://minjust.gov.ru/ru/documents/7755/"
 
         toMain = findViewById(R.id.main)
         toMain.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
         }
+
+        /*
         toCompanies = findViewById(R.id.to_companies)
         toCompanies.setOnClickListener {
             val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://rozetked.me/cancellations/"))
             startActivity(browserIntent)
         }
+         */
 
         namesList = findViewById(R.id.names_list)
 

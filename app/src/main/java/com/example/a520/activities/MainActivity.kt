@@ -3,7 +3,6 @@ package com.example.a520.activities
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -14,18 +13,15 @@ import java.io.IOException
 
 import android.net.ConnectivityManager
 import android.net.Uri
-import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.core.view.get
 import com.example.a520.*
-import com.example.a520.recyclerview.RecyclerTouchListener.ClickListener
 import com.example.a520.dialogs.ConnectionDialog
 import com.example.a520.dialogs.LinkDialog
 import com.example.a520.recyclerview.CustomRecyclerAdapter
-import com.example.a520.recyclerview.RecyclerTouchListener
+import com.example.a520.recyclerview.Dataset
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -37,25 +33,22 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
     lateinit var toComparison: Button
     lateinit var ownComparison: Button
     lateinit var toList: Button
-    //lateinit var rus: Button
     lateinit var recyclerView: RecyclerView
 
     var firstComparable: String = ""
     var secondComparable: String = ""
-    var titles: MutableList<String> = mutableListOf()
-    var links: MutableList<String> = mutableListOf()
-    var sources: MutableList<String>  = mutableListOf()
-    var dates: MutableList<String>  = mutableListOf()
-    var images: MutableList<String>  = mutableListOf()
     var linkForDialog: String = ""
+    var dataset: MutableList<Dataset> = mutableListOf()
+
+    // TODO: убрать корутин, сделать три отдельных списка под каждую кнопку,
+    // чтобы можно было выбирать на одной кнопке, перейти на вторую и вернуться на первую
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         toComparison = findViewById(R.id.to_comparison)
-        toComparison.isClickable = false
-        toComparison.isEnabled = false
+        comparisonAction("off")
         toComparison.setOnClickListener{
             if (!isConnected()){
                 ConnectionDialog().show(supportFragmentManager, "EmptyDialog")
@@ -70,64 +63,31 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
 
         toList = findViewById(R.id.to_list)
         toList.setOnClickListener{
-            val intentList = Intent(this, ListActivity::class.java).apply {
-                putExtra("physical", "https://minjust.gov.ru/ru/activity/directions/942/spisok-lic-vypolnyayushih-funkcii-inostrannogo-agenta/")
-                putExtra("media", "https://minjust.gov.ru/ru/documents/7755/")
-            }
-            startActivity(intentList)
+            startActivity(Intent(this, ListActivity::class.java))
         }
 
         ownComparison = findViewById(R.id.own_comparison)
         showEditTextDialog()
 
         recyclerView = findViewById(R.id.recyclerView)
-        recyclerView.addOnItemTouchListener(
-            RecyclerTouchListener(
-                applicationContext,
-                recyclerView,
-                object : ClickListener {
-                    override fun onClick(view: View?, position: Int) {
-                        val count: Int = recyclerView.childCount
-                        var positionView = position
-                        if (positionView >= count){
-                            positionView -= count
-                        }
-                        if (recyclerView[positionView].tag != null){
-                            recyclerView[positionView].background = getDrawable(R.drawable.bordered)
-                            if (recyclerView[positionView].tag == "first"){
-                                firstComparable = ""
-                            } else if (recyclerView[positionView].tag == "second"){
-                                secondComparable = ""
-                            }
-                            recyclerView[positionView].tag = null
-                            toComparison.isClickable = false
-                            toComparison.isEnabled = false
-                            toComparison.setBackgroundColor(resources.getColor(R.color.light_gray))
-                        } else {
-                            if (firstComparable == ""){
-                                recyclerView[positionView].background = getDrawable(R.drawable.bordered_select)
-                                firstComparable = links[position]
-                                recyclerView[positionView].tag = "first"
-                            } else if (secondComparable == ""){
-                                recyclerView[positionView].background = getDrawable(R.drawable.bordered_select)
-                                secondComparable = links[position]
-                                recyclerView[positionView].tag = "second"
-                            }
 
-                            if (firstComparable != "" && secondComparable != ""){
-                                toComparison.isClickable = true
-                                toComparison.isEnabled = true
-                                toComparison.setBackgroundColor(resources.getColor(R.color.green))
-                            }
-                        }
-                    }
+    }
 
-                    override fun onLongClick(view: View?, position: Int) {
-                        linkForDialog = links[position]
-                        LinkDialog(linkForDialog).show(supportFragmentManager, "YesNoDialog")
-                    }
-                })
-        )
+    private fun comparisonAction(action: String){
+        if (action == "on"){
+            toComparison.isClickable = true
+            toComparison.isEnabled = true
+            toComparison.setBackgroundColor(resources.getColor(R.color.green))
+        }
+        else if (action == "off"){
+            toComparison.isClickable = false
+            toComparison.isEnabled = false
+            toComparison.setBackgroundColor(resources.getColor(R.color.light_gray))
+        }
+        else {
+            linkForDialog = action
+            LinkDialog(linkForDialog).show(supportFragmentManager, "YesNoDialog")
+        }
     }
 
     private fun showEditTextDialog() {
@@ -175,27 +135,15 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
                     Log.d(DEVELOP, "Get Response")
                     val json = response?.body()?.string()
                     val newsData = Gson().fromJson(json, NewsResponse::class.java)
-                    val newtitles: MutableList<String> = mutableListOf()
-                    val newlinks: MutableList<String> = mutableListOf()
-                    val newsources: MutableList<String>  = mutableListOf()
-                    val newdates: MutableList<String>  = mutableListOf()
-                    val newimages: MutableList<String>  = mutableListOf()
+                    val newdataset: MutableList<Dataset> = mutableListOf()
                     for (news in newsData.results){
-                        newtitles.add(news.title)
-                        newlinks.add(news.link)
-                        newsources.add(news.source_id)
-                        newdates.add(news.pubDate)
-                        newimages.add(news.image_url.toString())
-
+                        newdataset.add(Dataset(
+                            news.title, news.link, news.source_id, news.pubDate, news.image_url.toString(), false)
+                        )
                     }
-                    titles = newtitles
-                    links = newlinks
-                    sources = newsources
-                    dates = newdates
-                    images = newimages
+                    dataset = newdataset
                 }
             })
-            Log.d(DEVELOP, titles.toString())
         }
     }
 
@@ -222,7 +170,9 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
             getResponse("спецоперация%20OR%20украина", "ru")
             runOnUiThread {
                 recyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
-                recyclerView.adapter = CustomRecyclerAdapter(applicationContext, titles, sources, dates, images)
+                recyclerView.adapter = CustomRecyclerAdapter(applicationContext, dataset){
+                    action -> comparisonAction(action)
+                }
             }
         }
 
@@ -234,7 +184,9 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
             getResponse("війна%20OR%20росія", "uk")
             runOnUiThread {
                 recyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
-                recyclerView.adapter = CustomRecyclerAdapter(applicationContext, titles, sources, dates, images)
+                recyclerView.adapter = CustomRecyclerAdapter(applicationContext, dataset){
+                        action -> comparisonAction(action)
+                }
             }
         }
 
