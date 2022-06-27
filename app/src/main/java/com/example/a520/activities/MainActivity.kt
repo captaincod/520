@@ -22,10 +22,6 @@ import com.example.a520.dialogs.ConnectionDialog
 import com.example.a520.dialogs.LinkDialog
 import com.example.a520.recyclerview.CustomRecyclerAdapter
 import com.example.a520.recyclerview.Dataset
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
@@ -35,17 +31,21 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
     lateinit var toList: Button
     lateinit var recyclerView: RecyclerView
 
-    var firstComparable: String = ""
-    var secondComparable: String = ""
     var linkForDialog: String = ""
-    var dataset: MutableList<Dataset> = mutableListOf()
-
-    // TODO: убрать корутин, сделать три отдельных списка под каждую кнопку,
-    // чтобы можно было выбирать на одной кнопке, перейти на вторую и вернуться на первую
+    var alreadySelected: MutableList<String> = mutableListOf()
+    lateinit var ruData: LanguageData
+    lateinit var ukData: LanguageData
+    lateinit var enData: LanguageData
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        if (!isConnected()){
+            ConnectionDialog().show(supportFragmentManager, "EmptyDialog")
+        }
+        ruData = LanguageData(getResponse("спецоперация%20OR%20украина", "ru"), itemSelectedList = mutableListOf())
+        ukData = LanguageData(getResponse("війна%20OR%20росія", "uk"), itemSelectedList = mutableListOf())
+        enData = LanguageData(getResponse("war%20OR%20ukraine", "en"), itemSelectedList = mutableListOf())
 
         toComparison = findViewById(R.id.to_comparison)
         comparisonAction("off")
@@ -54,8 +54,8 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
                 ConnectionDialog().show(supportFragmentManager, "EmptyDialog")
             } else {
                 val intentComparison = Intent(this, ComparisonActivity::class.java).apply {
-                    putExtra("first", firstComparable)
-                    putExtra("second", secondComparable)
+                    putExtra("first", alreadySelected[0])
+                    putExtra("second", alreadySelected[1])
                 }
                 startActivity(intentComparison)
             }
@@ -70,24 +70,7 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
         showEditTextDialog()
 
         recyclerView = findViewById(R.id.recyclerView)
-
-    }
-
-    private fun comparisonAction(action: String){
-        if (action == "on"){
-            toComparison.isClickable = true
-            toComparison.isEnabled = true
-            toComparison.setBackgroundColor(resources.getColor(R.color.green))
-        }
-        else if (action == "off"){
-            toComparison.isClickable = false
-            toComparison.isEnabled = false
-            toComparison.setBackgroundColor(resources.getColor(R.color.light_gray))
-        }
-        else {
-            linkForDialog = action
-            LinkDialog(linkForDialog).show(supportFragmentManager, "YesNoDialog")
-        }
+        recyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
     }
 
     private fun showEditTextDialog() {
@@ -115,36 +98,32 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
         }
     }
 
-    private fun getResponse(q: String, lang: String){
-        if (!isConnected()){
-            ConnectionDialog().show(supportFragmentManager, "EmptyDialog")
-        } else {
-            val client = OkHttpClient()
-            val URL =
-                "https://newsdata.io/api/1/news?apikey=${getString(R.string.API)}&language=$lang&q=$q"
-            val request: Request = Request.Builder()
-                .url(URL)
-                .build()
-            client.newCall(request).enqueue(object: Callback {
-                override fun onFailure(call: Call?, e: IOException?) {
-                    runOnUiThread {
-                        Log.w("DEVELOP", "New call on failure: $e")
-                    }
+    private fun getResponse(q: String, lang: String): MutableList<Dataset> {
+        val datasetList: MutableList<Dataset> = mutableListOf()
+        val client = OkHttpClient()
+        val URL =
+            "https://newsdata.io/api/1/news?apikey=${getString(R.string.API)}&language=$lang&q=$q"
+        val request: Request = Request.Builder()
+            .url(URL)
+            .build()
+        client.newCall(request).enqueue(object: Callback {
+            override fun onFailure(call: Call?, e: IOException?) {
+                runOnUiThread {
+                    Log.w(TAG, "New call on failure: $e")
                 }
-                override fun onResponse(call: Call?, response: Response?) {
-                    Log.d(DEVELOP, "Get Response")
-                    val json = response?.body()?.string()
-                    val newsData = Gson().fromJson(json, NewsResponse::class.java)
-                    val newdataset: MutableList<Dataset> = mutableListOf()
-                    for (news in newsData.results){
-                        newdataset.add(Dataset(
-                            news.title, news.link, news.source_id, news.pubDate, news.image_url.toString(), false)
-                        )
-                    }
-                    dataset = newdataset
+            }
+            override fun onResponse(call: Call?, response: Response?) {
+                Log.d(TAG, "Get Response $lang")
+                val json = response?.body()?.string()
+                val newsData = Gson().fromJson(json, NewsResponse::class.java)
+                for (news in newsData.results){
+                    datasetList.add(Dataset(
+                        news.title, news.link, news.source_id, news.pubDate, news.image_url.toString(), false)
+                    )
                 }
-            })
-        }
+            }
+        })
+        return datasetList
     }
 
     override fun onClick(dialog: DialogInterface?, which: Int) {
@@ -161,36 +140,46 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
     }
 
     companion object {
-        const val DEVELOP = "develop"
+        const val TAG = "develop"
     }
 
-    @DelicateCoroutinesApi
+    private fun comparisonAction(action: String){
+        when (action) {
+            "on" -> {
+                toComparison.isClickable = true
+                toComparison.isEnabled = true
+                toComparison.setBackgroundColor(resources.getColor(R.color.green))
+            }
+            "off" -> {
+                toComparison.isClickable = false
+                toComparison.isEnabled = false
+                toComparison.setBackgroundColor(resources.getColor(R.color.light_gray))
+            }
+            else -> {
+                linkForDialog = action
+                LinkDialog(linkForDialog).show(supportFragmentManager, "YesNoDialog")
+            }
+        }
+    }
+
     fun getRU(view: android.view.View) {
-        GlobalScope.launch (Dispatchers.IO) {
-            getResponse("спецоперация%20OR%20украина", "ru")
-            runOnUiThread {
-                recyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
-                recyclerView.adapter = CustomRecyclerAdapter(applicationContext, dataset){
-                    action -> comparisonAction(action)
-                }
-            }
-        }
-
+        recyclerView.adapter =
+            CustomRecyclerAdapter(applicationContext, ruData.dataset, ruData.itemSelectedList, alreadySelected){
+                    action -> comparisonAction(action) }
     }
 
-    @DelicateCoroutinesApi
+
     fun getUK(view: android.view.View) {
-        GlobalScope.launch (Dispatchers.IO) {
-            getResponse("війна%20OR%20росія", "uk")
-            runOnUiThread {
-                recyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
-                recyclerView.adapter = CustomRecyclerAdapter(applicationContext, dataset){
-                        action -> comparisonAction(action)
-                }
-            }
-        }
-
+        recyclerView.adapter =
+            CustomRecyclerAdapter(applicationContext, ukData.dataset, ukData.itemSelectedList, alreadySelected){
+                    action -> comparisonAction(action) }
     }
 
-    fun getEN(view: android.view.View) {}
+    fun getEN(view: android.view.View) {
+        recyclerView.adapter =
+            CustomRecyclerAdapter(applicationContext, enData.dataset, enData.itemSelectedList, alreadySelected){
+                    action -> comparisonAction(action) }
+    }
+
+    data class LanguageData(var dataset: MutableList<Dataset>, var itemSelectedList: MutableList<Int>)
 }

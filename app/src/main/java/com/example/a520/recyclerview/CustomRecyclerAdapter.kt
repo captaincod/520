@@ -1,6 +1,7 @@
 package com.example.a520.recyclerview
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,14 +9,15 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.a520.R
+import com.example.a520.activities.MainActivity.Companion.TAG
 import com.squareup.picasso.Picasso
 
 class CustomRecyclerAdapter(private val context: Context,
                             private val dataset: MutableList<Dataset>,
+                            private var itemSelectedList: MutableList<Int>,
+                            private var alreadySelected: MutableList<String>,
                             private val comparisonAction: (String) -> Unit
     ) : RecyclerView.Adapter<CustomRecyclerAdapter.MyViewHolder>() {
-    //private var isEnable = false
-    private var itemSelectedList = mutableListOf<Int>()
 
     class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val titleTextView: TextView = itemView.findViewById(R.id.textViewLarge)
@@ -44,34 +46,49 @@ class CustomRecyclerAdapter(private val context: Context,
         holder.titleTextView.text = item.title
         holder.sourceTextView.text = item.source
         holder.dateTextView.text = item.date
+        if (position in itemSelectedList){
+            holder.itemView.setBackgroundResource(R.drawable.bordered_select)
+        }
+        else {
+            holder.itemView.setBackgroundResource(R.drawable.bordered)
+        }
 
-        holder.titleTextView.setOnLongClickListener {
+        holder.itemView.setOnLongClickListener {
             comparisonAction(item.link)
             true
         }
 
-        holder.titleTextView.setOnClickListener {
+        holder.itemView.setOnClickListener {
             if (itemSelectedList.contains(position)){
                 itemSelectedList.remove(position)
                 holder.itemView.setBackgroundResource(R.drawable.bordered)
                 item.selected = false
-                if (itemSelectedList.isEmpty()){
-                    comparisonAction("off")
-                    //isEnable = false
+                if (item.link in alreadySelected){
+                    alreadySelected.remove(item.link)
                 }
+                comparisonAction("off")
             } else {
                 selectItem(holder, item, position)
             }
+            // Log.d(TAG, "selected positions: $itemSelectedList")
         }
 
     }
 
     private fun selectItem(holder: CustomRecyclerAdapter.MyViewHolder, item: Dataset, position: Int) {
-        //isEnable = true
-        itemSelectedList.add(position)
-        holder.itemView.setBackgroundResource(R.drawable.bordered_select)
-        item.selected = true
-        comparisonAction("on")
+        if (alreadySelected.size < 2) {
+            itemSelectedList.add(position)
+            alreadySelected.add(item.link)
+            holder.itemView.setBackgroundResource(R.drawable.bordered_select)
+            item.selected = true
+            if (alreadySelected.size == 2){
+                comparisonAction("on")
+            }
+        }
+        else {
+            comparisonAction("on")
+        }
+        // Log.d(TAG, "selected links: $alreadySelected")
     }
 
     override fun getItemCount() = dataset.size
