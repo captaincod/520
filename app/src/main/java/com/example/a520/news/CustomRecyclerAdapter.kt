@@ -1,7 +1,6 @@
-package com.example.a520.recyclerview
+package com.example.a520.news
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,7 +8,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.a520.R
-import com.example.a520.activities.MainActivity.Companion.TAG
 import com.squareup.picasso.Picasso
 
 class CustomRecyclerAdapter(private val context: Context,
@@ -75,7 +73,7 @@ class CustomRecyclerAdapter(private val context: Context,
 
     }
 
-    private fun selectItem(holder: CustomRecyclerAdapter.MyViewHolder, item: Dataset, position: Int) {
+    private fun selectItem(holder: MyViewHolder, item: Dataset, position: Int) {
         if (alreadySelected.size < 2) {
             itemSelectedList.add(position)
             alreadySelected.add(item.link)

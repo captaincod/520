@@ -11,8 +11,23 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintHeight_percent="0.44" />
+
+    <TextView
+        android:id="@+id/first_web_error"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintHeight_percent="0.44"
-        />
+        android:padding="30dp"
+        android:text="Проблемы с загрузкой страницы.\nПопробуйте включить VPN!"
+        android:fontFamily="@font/rubik"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/red"
+        app:drawableTopCompat="@drawable/world_news"
+        android:background="@color/white"
+        android:visibility="invisible"/>
 
     <View
         android:layout_width="match_parent"
@@ -30,6 +45,23 @@
         app:layout_constraintBottom_toTopOf="@+id/back"
         app:layout_constraintHeight_percent="0.44"
         />
+
+    <TextView
+        android:id="@+id/second_web_error"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@+id/first_web"
+        app:layout_constraintBottom_toTopOf="@+id/back"
+        app:layout_constraintHeight_percent="0.44"
+        android:padding="30dp"
+        android:text="Проблемы с загрузкой страницы.\nПопробуйте включить VPN!"
+        android:fontFamily="@font/rubik"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/red"
+        app:drawableTopCompat="@drawable/world_news"
+        android:background="@color/white"
+        android:visibility="invisible"/>
 
     <View
         android:layout_width="match_parent"

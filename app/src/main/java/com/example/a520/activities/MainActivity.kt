@@ -20,8 +20,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.a520.*
 import com.example.a520.dialogs.ConnectionDialog
 import com.example.a520.dialogs.LinkDialog
-import com.example.a520.recyclerview.CustomRecyclerAdapter
-import com.example.a520.recyclerview.Dataset
+import com.example.a520.news.CustomRecyclerAdapter
+import com.example.a520.news.Dataset
+import com.example.a520.news.LanguageData
 
 
 class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
@@ -120,7 +121,8 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
                     if (news.source_id.length > 7){
                         news.source_id = news.source_id.substring(0,7) + "..."
                     }
-                    datasetList.add(Dataset(
+                    datasetList.add(
+                        Dataset(
                         news.title, news.link, news.source_id, news.pubDate, news.image_url.toString(), false)
                     )
                 }
@@ -184,5 +186,5 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
                     action -> comparisonAction(action) }
     }
 
-    data class LanguageData(var dataset: MutableList<Dataset>, var itemSelectedList: MutableList<Int>)
+
 }

@@ -1,4 +1,4 @@
-package com.example.a520.recyclerview
+package com.example.a520.news
 
 data class Dataset(
     var title: String,
@@ -8,3 +8,5 @@ data class Dataset(
     var image: String,
     var selected: Boolean
 )
+
+data class LanguageData(var dataset: MutableList<Dataset>, var itemSelectedList: MutableList<Int>)
