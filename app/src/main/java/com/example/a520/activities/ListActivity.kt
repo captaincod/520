@@ -2,39 +2,43 @@ package com.example.a520.activities
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.ColorFilter
 import android.net.ConnectivityManager
-import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
-import android.widget.TextView
+import android.widget.ProgressBar
 import com.example.a520.dialogs.ConnectionDialog
 import com.example.a520.R
 import com.example.a520.activities.MainActivity.Companion.TAG
+import com.example.a520.agents.RuAgent
 import it.skrape.core.htmlDocument
 import it.skrape.fetcher.*
 import it.skrape.selects.*
 import it.skrape.selects.html5.*
-import kotlin.collections.emptyList as emptyList1
+import kotlin.collections.emptyList as emptyList
 
 class ListActivity : AppCompatActivity() {
 
     lateinit var toMain: Button
+    lateinit var progressBar: ProgressBar
+    lateinit var getRuAgents: Button
     //lateinit var toCompanies: Button
-    lateinit var getIndividuals: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list)
-
-        val physical = "https://minjust.gov.ru/ru/activity/directions/942/spisok-lic-vypolnyayushih-funkcii-inostrannogo-agenta/"
         val media = "https://minjust.gov.ru/ru/documents/7755/"
 
         toMain = findViewById(R.id.main)
         toMain.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
         }
+
+        progressBar = findViewById(R.id.progress_bar)
 
         /*
         toCompanies = findViewById(R.id.to_companies)
@@ -44,36 +48,14 @@ class ListActivity : AppCompatActivity() {
         }
          */
 
-        getIndividuals = findViewById(R.id.get_individuals)
+        getRuAgents = findViewById(R.id.get_ru_agents)
 
-        getIndividuals.setOnClickListener {
+        getRuAgents.setOnClickListener {
             if (!isConnected()){
                 ConnectionDialog().show(supportFragmentManager, "EmptyDialog")
             } else {
-                val physicalParagraphs = skrape(HttpFetcher) {
-                    request {
-                        url = physical
-                    }
-                    extractIt<ScrapeData> {
-                        htmlDocument {
-                            it.paragraphs = p { findAll { eachText } }
-                        }
-                    }
-                }
-                val paras = physicalParagraphs.paragraphs
-                val agents: MutableList<IndividualAgent> = mutableListOf()
-                for (i in paras) {
-                    if (i.length in 1..2) {
-                        val agent = IndividualAgent(
-                            paras[paras.indexOf(i)+1],
-                            paras[paras.indexOf(i)+2],
-                            paras[paras.indexOf(i)+3],
-                            paras[paras.indexOf(i)+4]
-                        )
-                        agents.add(agent)
-                    }
-                }
-                Log.d(TAG, agents.toString())
+                progressBar.visibility = View.VISIBLE
+                startActivity(Intent(this, RuAgentsActivity::class.java))
             }
         }
 
@@ -96,9 +78,8 @@ class ListActivity : AppCompatActivity() {
 
     }
 
-    data class ScrapeData(var paragraphs: List<String> = emptyList1())
-    data class IndividualAgent(var name: String, var inclusionDate: String,
-                               var foreignSource: String, var info: String)
+    data class ScrapeData(var paragraphs: List<String> = emptyList())
+
 
     private fun isConnected(): Boolean {
         val connectivityManager =

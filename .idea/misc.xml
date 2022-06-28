@@ -10,10 +10,14 @@
         <entry key="..\:/AndroidStudioProjects/520/app/src/main/res/drawable/button_individuals.xml" value="0.14895833333333333" />
         <entry key="..\:/AndroidStudioProjects/520/app/src/main/res/drawable/button_media.xml" value="0.14166666666666666" />
         <entry key="..\:/AndroidStudioProjects/520/app/src/main/res/drawable/green_buttom.xml" value="0.14114583333333333" />
+        <entry key="..\:/AndroidStudioProjects/520/app/src/main/res/drawable/lightblue_back.xml" value="0.2755208333333333" />
+        <entry key="..\:/AndroidStudioProjects/520/app/src/main/res/drawable/white_back.xml" value="0.2755208333333333" />
         <entry key="..\:/AndroidStudioProjects/520/app/src/main/res/layout/activity_companies.xml" value="0.264" />
         <entry key="..\:/AndroidStudioProjects/520/app/src/main/res/layout/activity_comparison.xml" value="0.2" />
         <entry key="..\:/AndroidStudioProjects/520/app/src/main/res/layout/activity_list.xml" value="0.264" />
         <entry key="..\:/AndroidStudioProjects/520/app/src/main/res/layout/activity_main.xml" value="0.264" />
+        <entry key="..\:/AndroidStudioProjects/520/app/src/main/res/layout/activity_ru_agents.xml" value="0.264" />
+        <entry key="..\:/AndroidStudioProjects/520/app/src/main/res/layout/agent_item.xml" value="0.4" />
         <entry key="..\:/AndroidStudioProjects/520/app/src/main/res/layout/edit_text_layout.xml" value="0.1" />
         <entry key="..\:/AndroidStudioProjects/520/app/src/main/res/layout/recyclerview_item.xml" value="0.4" />
       </map>
