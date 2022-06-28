@@ -9,7 +9,7 @@
 
     <Button
         android:id="@+id/rus"
-        android:layout_width="80dp"
+        android:layout_width="100dp"
         android:layout_height="80dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -17,12 +17,13 @@
         android:text="россия"
         android:onClick="getRU"
         android:fontFamily="@font/rubik"
-        android:textSize="12sp"
+        android:textSize="11sp"
+        android:textStyle="bold"
         android:textColor="@color/white"
         android:background="@drawable/russia"/>
     <Button
         android:id="@+id/ukr"
-        android:layout_width="80dp"
+        android:layout_width="100dp"
         android:layout_height="80dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toRightOf="@id/rus"
@@ -30,20 +31,22 @@
         android:text="украина"
         android:onClick="getUK"
         android:fontFamily="@font/rubik"
-        android:textSize="12sp"
+        android:textSize="11sp"
+        android:textStyle="bold"
         android:textColor="@color/white"
         android:background="@drawable/ukraine"/>
 
     <Button
         android:id="@+id/eng"
-        android:layout_width="80dp"
+        android:layout_width="100dp"
         android:layout_height="80dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toRightOf="@id/ukr"
         app:layout_constraintRight_toRightOf="parent"
         android:text="запад"
         android:fontFamily="@font/rubik"
-        android:textSize="12sp"
+        android:textSize="11sp"
+        android:textStyle="bold"
         android:onClick="getEN"
         android:textColor="@color/white"
         android:background="@drawable/engish"/>
@@ -74,7 +77,7 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="@color/white"
-        android:background="@color/light_gray"/>
+        android:background="@color/light_gray_tint"/>
     <Button
         android:id="@+id/own_comparison"
         android:layout_width="0dp"
@@ -120,6 +123,6 @@
         android:drawableEnd="@drawable/newspaper"
         android:paddingHorizontal="20dp"
         android:paddingVertical="10dp"
-        android:background="@color/dark_gray" />
+        android:background="@color/light_gray_tint" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

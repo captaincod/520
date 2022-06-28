@@ -10,6 +10,7 @@
 
     <color name="dark_gray">#FF676A6D</color>
     <color name="light_gray">#FFCDD3D9</color>
+    <color name="light_gray_tint">#FFbfc6ce</color>
     <color name="dark_blue">#FF526880</color>
     <color name="light_blue">#FF83ADE6</color>
     <color name="yellow">#FFFFE38F</color>

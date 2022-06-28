@@ -117,6 +117,9 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
                 val json = response?.body()?.string()
                 val newsData = Gson().fromJson(json, NewsResponse::class.java)
                 for (news in newsData.results){
+                    if (news.source_id.length > 7){
+                        news.source_id = news.source_id.substring(0,7) + "..."
+                    }
                     datasetList.add(Dataset(
                         news.title, news.link, news.source_id, news.pubDate, news.image_url.toString(), false)
                     )
@@ -153,7 +156,7 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
             "off" -> {
                 toComparison.isClickable = false
                 toComparison.isEnabled = false
-                toComparison.setBackgroundColor(resources.getColor(R.color.light_gray))
+                toComparison.setBackgroundColor(resources.getColor(R.color.light_gray_tint))
             }
             else -> {
                 linkForDialog = action

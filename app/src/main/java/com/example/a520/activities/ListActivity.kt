@@ -6,10 +6,12 @@ import android.net.ConnectivityManager
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import com.example.a520.dialogs.ConnectionDialog
 import com.example.a520.R
+import com.example.a520.activities.MainActivity.Companion.TAG
 import it.skrape.core.htmlDocument
 import it.skrape.fetcher.*
 import it.skrape.selects.*
@@ -21,7 +23,6 @@ class ListActivity : AppCompatActivity() {
     lateinit var toMain: Button
     //lateinit var toCompanies: Button
     lateinit var getIndividuals: Button
-    lateinit var namesList: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,8 +44,6 @@ class ListActivity : AppCompatActivity() {
         }
          */
 
-        namesList = findViewById(R.id.names_list)
-
         getIndividuals = findViewById(R.id.get_individuals)
 
         getIndividuals.setOnClickListener {
@@ -53,9 +52,7 @@ class ListActivity : AppCompatActivity() {
             } else {
                 val physicalParagraphs = skrape(HttpFetcher) {
                     request {
-                        if (physical != null) {
-                            url = physical
-                        }
+                        url = physical
                     }
                     extractIt<ScrapeData> {
                         htmlDocument {
@@ -76,12 +73,7 @@ class ListActivity : AppCompatActivity() {
                         agents.add(agent)
                     }
                 }
-
-                var text = ""
-                for (agent in agents){
-                    text += "\n${agent.name}\n${agent.inclusionDate}\n${agent.foreignSource}\n"
-                }
-                namesList.text = text
+                Log.d(TAG, agents.toString())
             }
         }
 
