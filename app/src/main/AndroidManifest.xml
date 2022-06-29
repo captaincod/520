@@ -10,9 +10,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.520">
         <activity
+            android:name=".activities.RuMediaActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
             android:name=".activities.RuAgentsActivity"
             android:exported="true"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"  />
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
             android:name=".activities.ListActivity"
             android:exported="true"
@@ -32,8 +36,8 @@
             </intent-filter>
         </activity>
     </application>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
 </manifest>
