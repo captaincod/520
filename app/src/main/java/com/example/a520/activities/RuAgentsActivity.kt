@@ -45,7 +45,7 @@ class RuAgentsActivity : AppCompatActivity() {
             request {
                 url = "https://minjust.gov.ru/ru/activity/directions/942/spisok-lic-vypolnyayushih-funkcii-inostrannogo-agenta/"
             }
-            extractIt<ListActivity.ScrapeData> {
+            extractIt<ScrapeData> {
                 htmlDocument {
                     it.paragraphs = p { findAll { eachText } }
                 }
@@ -64,4 +64,6 @@ class RuAgentsActivity : AppCompatActivity() {
             }
         }
     }
+
+    data class ScrapeData(var paragraphs: List<String> = emptyList())
 }

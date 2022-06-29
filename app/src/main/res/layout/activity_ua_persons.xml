@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/light_blue"
+    tools:context=".activities.UaPersonsActivity">
+
+    <TextView
+        android:id="@+id/ua_persons_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        android:paddingHorizontal="15dp"
+        android:paddingTop="10dp"
+        android:text="Перечень лиц, создающих угрозу национальной безопасности Украины"
+        android:fontFamily="@font/rubik"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/white" />
+
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/search_ua_persons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/ua_persons_text"
+        app:layout_constraintBottom_toTopOf="@id/ua_persons_view"
+        android:layout_margin="10dp"
+        android:background="@color/white" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/ua_persons_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginBottom="10dp"
+        android:padding="20dp"
+        android:background="@drawable/lightblue_back"
+        tools:listitem="@layout/ua_person_item"
+        app:layout_constraintBottom_toTopOf="@id/back"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_ua_persons"
+        android:scrollbars="vertical"/>
+
+    <Button
+        android:id="@+id/back"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:paddingHorizontal="20dp"
+        android:paddingVertical="10dp"
+        android:text="Назад"
+        android:fontFamily="@font/rubik"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:background="@color/red" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

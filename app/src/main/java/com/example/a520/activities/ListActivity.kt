@@ -40,6 +40,7 @@ class ListActivity : AppCompatActivity() {
     lateinit var progressBar: ProgressBar
     lateinit var getRuAgents: Button
     lateinit var getRuMedia: Button
+    lateinit var getUaPersons: Button
     //lateinit var toCompanies: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,10 +78,18 @@ class ListActivity : AppCompatActivity() {
             startActivity(Intent(this, RuMediaActivity::class.java))
         }
 
+        getUaPersons = findViewById(R.id.get_ua)
+        getUaPersons.setOnClickListener {
+            progressBar.visibility = View.VISIBLE
+            startActivity(Intent(this, UaPersonsActivity::class.java))
+        }
+
     }
 
-    data class ScrapeData(var paragraphs: List<String> = emptyList())
-
+    override fun onDestroy() {
+        super.onDestroy()
+        progressBar.visibility = View.INVISIBLE
+    }
 
     private fun isConnected(): Boolean {
         val connectivityManager =
