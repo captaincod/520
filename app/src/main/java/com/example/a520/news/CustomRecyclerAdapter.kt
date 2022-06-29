@@ -31,14 +31,12 @@ class CustomRecyclerAdapter(private val context: Context,
         return MyViewHolder(itemView)
     }
 
-    // TODO: заменить placeholder
-
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val item = dataset[position]
         Picasso.with(context)
             .load(item.image)
-            .placeholder(R.drawable.world_news)
-            .error(R.drawable.world_news)
+            .placeholder(R.drawable.detection)
+            .error(R.drawable.detection)
             .fit()
             .into(holder.imageView)
         holder.titleTextView.text = item.title
@@ -68,7 +66,6 @@ class CustomRecyclerAdapter(private val context: Context,
             } else {
                 selectItem(holder, item, position)
             }
-            // Log.d(TAG, "selected positions: $itemSelectedList")
         }
 
     }
@@ -86,7 +83,6 @@ class CustomRecyclerAdapter(private val context: Context,
         else {
             comparisonAction("on")
         }
-        // Log.d(TAG, "selected links: $alreadySelected")
     }
 
     override fun getItemCount() = dataset.size

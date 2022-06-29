@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">520</string>
-    <string name="API">pub_83965c068f091f7babcbba19cef8609200ca</string>
+    <string name="API">pub_8815d7a88b56780197abc85d6e5491e89d0e</string>
     <string-array name="media_entities">
         <item>"1	Голос Америки	05.12.2017"</item>
         <item>"2	Idel.Реалии	05.12.2017"</item>

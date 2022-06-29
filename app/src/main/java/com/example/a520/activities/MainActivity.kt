@@ -13,7 +13,9 @@ import java.io.IOException
 
 import android.net.ConnectivityManager
 import android.net.Uri
+import android.view.View
 import android.widget.EditText
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -31,6 +33,7 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
     lateinit var ownComparison: Button
     lateinit var toList: Button
     lateinit var recyclerView: RecyclerView
+    lateinit var tipText: TextView
 
     var linkForDialog: String = ""
     var alreadySelected: MutableList<String> = mutableListOf()
@@ -44,9 +47,12 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
         if (!isConnected()){
             ConnectionDialog().show(supportFragmentManager, "EmptyDialog")
         }
+
+        tipText = findViewById(R.id.tip_text)
+
         ruData = LanguageData(getResponse("спецоперация%20OR%20украина", "ru"), itemSelectedList = mutableListOf())
         ukData = LanguageData(getResponse("війна%20OR%20росія", "uk"), itemSelectedList = mutableListOf())
-        enData = LanguageData(getResponse("war%20OR%20ukraine", "en"), itemSelectedList = mutableListOf())
+        enData = LanguageData(getResponse("ukraine%20OR%20russia", "en"), itemSelectedList = mutableListOf())
 
         toComparison = findViewById(R.id.to_comparison)
         comparisonAction("off")
@@ -153,12 +159,12 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
             "on" -> {
                 toComparison.isClickable = true
                 toComparison.isEnabled = true
-                toComparison.setBackgroundColor(resources.getColor(R.color.green))
+                toComparison.setBackgroundResource(R.drawable.working_comparison)
             }
             "off" -> {
                 toComparison.isClickable = false
                 toComparison.isEnabled = false
-                toComparison.setBackgroundColor(resources.getColor(R.color.light_gray_tint))
+                toComparison.setBackgroundResource(R.drawable.non_working_comparison)
             }
             else -> {
                 linkForDialog = action
@@ -171,6 +177,8 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
         recyclerView.adapter =
             CustomRecyclerAdapter(applicationContext, ruData.dataset, ruData.itemSelectedList, alreadySelected){
                     action -> comparisonAction(action) }
+        tipText.visibility = View.INVISIBLE
+        recyclerView.visibility = View.VISIBLE
     }
 
 
@@ -178,12 +186,16 @@ class MainActivity : AppCompatActivity(), DialogInterface.OnClickListener {
         recyclerView.adapter =
             CustomRecyclerAdapter(applicationContext, ukData.dataset, ukData.itemSelectedList, alreadySelected){
                     action -> comparisonAction(action) }
+        tipText.visibility = View.INVISIBLE
+        recyclerView.visibility = View.VISIBLE
     }
 
     fun getEN(view: android.view.View) {
         recyclerView.adapter =
             CustomRecyclerAdapter(applicationContext, enData.dataset, enData.itemSelectedList, alreadySelected){
                     action -> comparisonAction(action) }
+        tipText.visibility = View.INVISIBLE
+        recyclerView.visibility = View.VISIBLE
     }
 
 
