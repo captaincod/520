@@ -11,11 +11,14 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
+import com.example.a520.NewsResponse
 import com.example.a520.dialogs.ConnectionDialog
 import com.example.a520.R
 import com.example.a520.activities.MainActivity.Companion.TAG
 import com.example.a520.agents.RuAgent
 import com.example.a520.agents.RuMedia
+import com.example.a520.news.Dataset
+import com.google.gson.Gson
 import it.skrape.core.htmlDocument
 import it.skrape.fetcher.*
 import it.skrape.matchers.isInteger
@@ -26,6 +29,9 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import okhttp3.*
+import okhttp3.Request
+import java.io.IOException
 import kotlin.collections.emptyList as emptyList
 
 class ListActivity : AppCompatActivity() {
@@ -33,7 +39,7 @@ class ListActivity : AppCompatActivity() {
     lateinit var toMain: Button
     lateinit var progressBar: ProgressBar
     lateinit var getRuAgents: Button
-    //lateinit var getRuMedia: Button
+    lateinit var getRuMedia: Button
     //lateinit var toCompanies: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,7 +71,11 @@ class ListActivity : AppCompatActivity() {
             }
         }
 
-        //getRuMedia = findViewById(R.id.get_ru_media)
+        getRuMedia = findViewById(R.id.get_ru_media)
+        getRuMedia.setOnClickListener {
+            progressBar.visibility = View.VISIBLE
+            startActivity(Intent(this, RuMediaActivity::class.java))
+        }
 
     }
 
@@ -78,40 +88,4 @@ class ListActivity : AppCompatActivity() {
         val networkInfo = connectivityManager.activeNetworkInfo
         return networkInfo?.isConnected == true
     }
-
-    suspend fun getData(): ScrapeData {
-        val mediaParagraphs = skrape(HttpFetcher) {
-            request {
-                url = "https://ru.wikipedia.org/wiki/%D0%A1%D0%BF%D0%B8%D1%81%D0%BE%D0%BA_%D0%B8%D0%BD%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%BD%D1%8B%D1%85_%D0%B0%D0%B3%D0%B5%D0%BD%D1%82%D0%BE%D0%B2_(%D0%A0%D0%BE%D1%81%D1%81%D0%B8%D1%8F)"
-                timeout = 15000
-            }
-            extractIt<ListActivity.ScrapeData> {
-                htmlDocument {
-                    it.paragraphs = tr { findAll { eachText } }
-                }
-            }
-        }
-        return mediaParagraphs
-
-    }
-
-    @DelicateCoroutinesApi
-    fun getMedia(view: android.view.View) {
-        progressBar.visibility = View.VISIBLE
-        var paras: List<String>
-        GlobalScope.launch (Dispatchers.IO) {
-            val mediaParagraphs = getData()
-            paras = mediaParagraphs.paragraphs
-            val arr : ArrayList<String> = arrayListOf()
-            arr.addAll(paras)
-            runOnUiThread{
-                val intent = Intent(this@ListActivity, RuMediaActivity::class.java).apply {
-                    putExtra("paragraphs", arr)
-                }
-                startActivity(intent)
-            }
-        }
-    }
-
-
 }

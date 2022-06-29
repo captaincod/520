@@ -3,11 +3,9 @@ package com.example.a520.agents
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.a520.R
-import com.example.a520.news.CustomRecyclerAdapter
 
 class RuAgentsAdapter(private val agents: MutableList<RuAgent>) :
     RecyclerView.Adapter<RuAgentsAdapter.AgentsViewHolder>() {

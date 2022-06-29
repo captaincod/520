@@ -6,24 +6,29 @@ import android.os.Bundle
 import android.widget.Button
 import com.example.a520.R
 import com.example.a520.agents.RuMedia
-import it.skrape.core.htmlDocument
-import it.skrape.fetcher.HttpFetcher
-import it.skrape.fetcher.extractIt
-import it.skrape.fetcher.skrape
-import it.skrape.selects.eachText
-import it.skrape.selects.html5.p
 
 import android.util.Log
 import android.widget.TextView
+import androidx.appcompat.widget.SearchView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.a520.activities.MainActivity.Companion.TAG
+import com.example.a520.agents.RuAgent
+import com.example.a520.agents.RuAgentsAdapter
+import com.example.a520.agents.RuMediaAdapter
 import it.skrape.matchers.isInteger
 import it.skrape.matchers.isNumeric
 import it.skrape.selects.html5.tr
+import java.util.*
 
 
 class RuMediaActivity : AppCompatActivity() {
 
     lateinit var back: Button
+    lateinit var mediaView: RecyclerView
+    lateinit var searchView: SearchView
+    var mediaList: MutableList<RuMedia> = mutableListOf()
+    var recyclerList: MutableList<RuMedia> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,35 +40,44 @@ class RuMediaActivity : AppCompatActivity() {
             startActivity(Intent(this, ListActivity::class.java))
         }
 
-        val paragraphs : ArrayList<String> = intent.getSerializableExtra("paragraphs") as ArrayList<String>
-        //val table: MutableList<RuMedia> = mutableListOf()
-        val table: MutableList<String> = mutableListOf()
-        val targetTable = 2
-        var currentTable = 0
-
-        for (i in paragraphs){
-            val first = i.toCharArray()[0]
-            if (!first.isDigit()){
-               currentTable += 1
-            }
-            else {
-                if (currentTable == targetTable){
-                    //val splitted = i.split(' ')
-                    //val name = splitted.subList(0, splitted.size-2).toString()
-                    //val date = i.split(' ')[-1]
-                    table.add(i)
-                }
-                else if (currentTable > targetTable){
-                    break
-                }
-            }
+        val arr = resources.getStringArray(R.array.media_entities)
+        for (str in arr){
+            val media = str.split(' ', '\t')
+            val name = media.slice(1..media.size-2).joinToString(separator = " ")
+            mediaList.add(RuMedia(name, media.last()))
         }
 
-        val textView = findViewById<TextView>(R.id.ru_media_text)
-        textView.text = table[-1]
+        recyclerList.addAll(mediaList)
 
+        mediaView = findViewById(R.id.media_view)
+        mediaView.layoutManager = LinearLayoutManager(this)
+        mediaView.adapter = RuMediaAdapter(recyclerList)
 
+        searchView = findViewById(R.id.search)
+        searchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener{
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return true
+            }
 
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if (newText!!.isNotEmpty()) {
+                    recyclerList.clear()
+                    var search = newText.lowercase(Locale.getDefault())
+                    for (media in mediaList){
+                        if (media.name.lowercase(Locale.getDefault()).contains(search)){
+                            recyclerList.add(media)
+                        }
+                        mediaView.adapter!!.notifyDataSetChanged()
+                    }
+                } else {
+                    recyclerList.clear()
+                    recyclerList.addAll(mediaList)
+                    mediaView.adapter!!.notifyDataSetChanged()
+                }
+                return true
+            }
+
+        })
 
     }
 
